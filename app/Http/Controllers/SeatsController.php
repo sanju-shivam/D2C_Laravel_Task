@@ -25,20 +25,26 @@ class SeatsController extends Controller
                 ]);
     }
 
+    //Save All the seats to database for process 
     public function book_seats(Request $request)
     {
         try{
-            for ($i=1; $i <= 12; $i++){ 
+            // Loop through all the recoreds
+            for ($i=1; $i <= 12; $i++){
+                // Condition to check there is required vacant space in any row or not 
                 if(Seat::where('Seat_Count','>=',$request->seat)->where('row_id','=',$i)->count() == 1){
+                    // Fetch All Seat Count in that row where we can completely fill seat
                     $seat =     Seat::where('Seat_Count','>=',$request->seat)
                                     ->where('row_id','=',$i)
                                     ->first()
                                     ->Seat_Count;
 
+                    // update seat data in database
                     $success = Seat::where('row_id','=',$i)->update([
                         'Seat_Count' => $seat - $request->seat, 
                     ]);
 
+                    // Fetch all rows vacant space
                     $row_seat_count = [];
                     for ($j=0; $j <12 ; $j++) { 
                         $row_seat_count[$j]    =   Seat::where('row_id','=',$j+1)->first()->Seat_Count;
@@ -54,9 +60,12 @@ class SeatsController extends Controller
 
             $seat_required  = $request->seat;
             for ($i=1; $i <= 12; $i++){
+                // Seat left in a row
                 $seat_left      = Seat::where('row_id','=',$i)->first()->Seat_Count;
+                // Seat Required after detection in that particular seats from that row
                 $seat_required  = $seat_required - $seat_left;
 
+                // If seat is still required
                 if($seat_required > 0){
                     Seat::where('row_id','=',$i)->update([
                         'Seat_Count' => 0,
@@ -65,6 +74,7 @@ class SeatsController extends Controller
                     Seat::where('row_id','=',$i)->update([
                         'Seat_Count' =>  abs($seat_required),
                     ]);
+                    //Seat Counting according to row
                     $row_seat_count = [];
                     for ($j=0; $j <12 ; $j++) { 
                         $row_seat_count[$j]    =   Seat::where('row_id','=',$j+1)->first()->Seat_Count;
@@ -87,6 +97,7 @@ class SeatsController extends Controller
         }
     }
 
+    // Just to reset databas as new
     public function reset()
     {
         Seat::find(1)->update([
