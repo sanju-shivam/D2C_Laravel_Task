@@ -21,6 +21,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 	Route::get('seats','SeatsController@fetch_all_seats');
 	Route::post('seats/book','SeatsController@book_seats');
+	Route::get('seats/reset','SeatsController@reset');
+	// Route::post('seats/books','SeatsController@book_seats_new');
 
 
 
